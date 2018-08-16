@@ -1,29 +1,30 @@
 package imgvert
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
 	"image"
+	"image/gif"
+	"image/jpeg"
 	"image/png"
-
-	parser "github.com/kkesley/s3-parser"
 )
 
-func ReadImage(region string, bucket string, key string) (*image.Image, error) {
+func ReadImage(data []byte) (image.Image, error) {
 	// decode jpeg into image.Image
-	output, err := parser.GetS3DocumentDefaultRaw(region, bucket, key)
-	if err != nil {
-		return nil, err
-	}
-	_, format, err := image.DecodeConfig(output.Body)
+	formatReader := bytes.NewReader(data)
+	_, format, err := image.DecodeConfig(formatReader)
 	if err != nil {
 		return nil, err
 	}
 	fmt.Println(format)
-	img, err := png.Decode(output.Body)
-	if err != nil {
-		return nil, err
+	imageReader := bytes.NewReader(data)
+	if format == "png" {
+		return png.Decode(imageReader)
+	} else if format == "jpg" {
+		return jpeg.Decode(imageReader)
+	} else if format == "gif" {
+		return gif.Decode(imageReader)
 	}
-	fmt.Println(img)
-
-	return &img, nil
+	return nil, errors.New("Format not supported")
 }

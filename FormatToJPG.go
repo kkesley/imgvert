@@ -1,22 +1,15 @@
 package imgvert
 
 import (
-	"fmt"
+	"bytes"
 	"image"
 	"image/color"
 	"image/draw"
 	"image/jpeg"
-	"os"
 )
 
-func FormatToJPG(img image.Image) {
-	out, err := os.Create("convertToJPG.jpg")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+func FormatToJPG(img image.Image) (bytes.Buffer, error) {
 	newImg := image.NewRGBA(img.Bounds())
-
 	// we will use white background to replace PNG's transparent background
 	// you can change it to whichever color you want with
 	// a new color.RGBA{} and use image.NewUniform(color.RGBA{<fill in color>}) function
@@ -24,15 +17,13 @@ func FormatToJPG(img image.Image) {
 	draw.Draw(newImg, newImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
 	// paste PNG image OVER to newImage
+	var w bytes.Buffer
 	draw.Draw(newImg, newImg.Bounds(), img, img.Bounds().Min, draw.Over)
-	err = jpeg.Encode(out, newImg, &jpeg.Options{
+	if err := jpeg.Encode(&w, newImg, &jpeg.Options{
 		Quality: 80,
-	})
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	}); err != nil {
+		return w, err
 	}
-
-	fmt.Println(img, "\n success... \n ")
+	return w, nil
 
 }
