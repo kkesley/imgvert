@@ -10,10 +10,10 @@ import (
 	"image/png"
 )
 
+//ReadImage read an image file based on bytes
 func ReadImage(data []byte) (image.Image, error) {
 	// decode jpeg into image.Image
-	formatReader := bytes.NewReader(data)
-	_, format, err := image.DecodeConfig(formatReader)
+	format, err := GetImageFormat(data)
 	if err != nil {
 		return nil, err
 	}
@@ -21,7 +21,7 @@ func ReadImage(data []byte) (image.Image, error) {
 	imageReader := bytes.NewReader(data)
 	if format == "png" {
 		return png.Decode(imageReader)
-	} else if format == "jpg" {
+	} else if format == "jpg" || format == "jpeg" {
 		return jpeg.Decode(imageReader)
 	} else if format == "gif" {
 		return gif.Decode(imageReader)

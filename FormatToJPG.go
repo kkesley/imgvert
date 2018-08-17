@@ -8,7 +8,9 @@ import (
 	"image/jpeg"
 )
 
+//FormatToJPG format an image to JPG
 func FormatToJPG(img image.Image) (bytes.Buffer, error) {
+	var w bytes.Buffer //Writer
 	newImg := image.NewRGBA(img.Bounds())
 	// we will use white background to replace PNG's transparent background
 	// you can change it to whichever color you want with
@@ -17,7 +19,6 @@ func FormatToJPG(img image.Image) (bytes.Buffer, error) {
 	draw.Draw(newImg, newImg.Bounds(), &image.Uniform{color.White}, image.Point{}, draw.Src)
 
 	// paste PNG image OVER to newImage
-	var w bytes.Buffer
 	draw.Draw(newImg, newImg.Bounds(), img, img.Bounds().Min, draw.Over)
 	if err := jpeg.Encode(&w, newImg, &jpeg.Options{
 		Quality: 80,

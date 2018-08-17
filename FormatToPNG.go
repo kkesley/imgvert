@@ -1,24 +1,19 @@
 package imgvert
 
 import (
-	"fmt"
+	"bytes"
 	"image"
 	"image/png"
-	"os"
 )
 
-func Formatpng(img image.Image) {
-	out, err := os.Create("converterdTOPNG.png")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+//FormatToPNG format image to PNG
+func FormatToPNG(img image.Image) (bytes.Buffer, error) {
+	var w bytes.Buffer //Writer
+	enc := png.Encoder{
+		CompressionLevel: png.NoCompression,
 	}
-	err = png.Encode(out, img)
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+	if err := enc.Encode(&w, img); err != nil {
+		return w, err
 	}
-
-	fmt.Println(img, "\n success... \n ")
-
+	return w, nil
 }
